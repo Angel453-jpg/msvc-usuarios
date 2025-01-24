@@ -1,20 +1,26 @@
 package com.angel.springcloud.msvc.usuarios.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 @Entity
+@Schema(description = "Entidad que representa un usuario en el sistema")
 @Table(name = "usuarios")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Identificador único del usuario", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long id;
 
+    @Schema(description = "Nombre completo del usuario", example = "Angel", requiredMode = Schema.RequiredMode.REQUIRED)
     private String nombre;
 
+    @Schema(description = "Correo electrónico del usuario", example = "juan.perez@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
     @Column(unique = true)
     private String email;
 
+    @Schema(description = "Contraseña del usuario", example = "123456", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 
     public Long getId() {
