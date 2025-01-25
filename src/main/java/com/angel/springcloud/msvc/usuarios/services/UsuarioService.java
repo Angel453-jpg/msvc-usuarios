@@ -11,8 +11,12 @@ public interface UsuarioService {
 
     Optional<Usuario> obtenerPorId(Long id);
 
+    Optional<Usuario> obtenerPorEmail(String email);
+
     Usuario guardar(Usuario usuario);
 
     void eliminar(Long id);
+
+    boolean existePorEmail(String email);
 
 }

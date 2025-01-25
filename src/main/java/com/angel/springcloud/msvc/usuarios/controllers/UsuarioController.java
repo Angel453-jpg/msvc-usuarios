@@ -6,12 +6,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController("/api/v1/usuarios")
 @Tag(name = "Usuarios", description = "API para gestionar los usuarios")
@@ -41,7 +42,7 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public ResponseEntity<?> detalle(@PathVariable Long id) {
 
-        Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
+        Optional<Usuario> usuarioOptional = getUsuario(id);
         if (usuarioOptional.isPresent()) {
             return ResponseEntity.ok().body(usuarioOptional.get());
         }
@@ -56,7 +57,18 @@ public class UsuarioController {
             @ApiResponse(responseCode = "400", description = "Solicitud inválida")
     })
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> crear(@Valid @RequestBody Usuario usuario, BindingResult result) {
+
+        if (result.hasErrors()) {
+            return validar(result);
+        }
+
+        if (!usuario.getEmail().isEmpty() && usuarioService.existePorEmail(usuario.getEmail())) {
+            return ResponseEntity.badRequest()
+                    .body(Collections
+                            .singletonMap("mensaje", "El email ya está registrado con ese correo electrónico"));
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.guardar(usuario));
     }
 
@@ -66,11 +78,24 @@ public class UsuarioController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@RequestBody Usuario usuario, @PathVariable Long id) {
+    public ResponseEntity<?> editar(@Valid @RequestBody Usuario usuario, BindingResult result, @PathVariable Long id) {
 
-        Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
+        if (result.hasErrors()) {
+            return validar(result);
+        }
+
+        Optional<Usuario> usuarioOptional = getUsuario(id);
         if (usuarioOptional.isPresent()) {
             Usuario usuarioDb = usuarioOptional.get();
+
+            if (!usuario.getEmail().isEmpty()
+                    && !usuario.getEmail().equalsIgnoreCase(usuarioDb.getEmail())
+                    && usuarioService.obtenerPorEmail(usuario.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest()
+                        .body(Collections
+                                .singletonMap("mensaje", "El email ya está registrado con ese correo electrónico"));
+            }
+
             usuarioDb.setNombre(usuario.getNombre());
             usuarioDb.setEmail(usuario.getEmail());
             usuarioDb.setPassword(usuario.getPassword());
@@ -90,7 +115,7 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
 
-        Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
+        Optional<Usuario> usuarioOptional = getUsuario(id);
         if (usuarioOptional.isPresent()) {
             usuarioService.eliminar(id);
             return ResponseEntity.noContent().build();
@@ -98,6 +123,18 @@ public class UsuarioController {
 
         return ResponseEntity.notFound().build();
 
+    }
+
+    private static ResponseEntity<Map<String, String>> validar(BindingResult result) {
+        Map<String, String> errores = new HashMap<>();
+        result.getFieldErrors().forEach(
+                error -> errores.put(error.getField(), "El campo " + error.getField() + " " + error.getDefaultMessage())
+        );
+        return ResponseEntity.badRequest().body(errores);
+    }
+
+    private Optional<Usuario> getUsuario(Long id) {
+        return usuarioService.obtenerPorId(id);
     }
 
 }

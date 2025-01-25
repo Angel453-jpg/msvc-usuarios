@@ -1,4 +1,4 @@
-    package com.angel.springcloud.msvc.usuarios.services;
+package com.angel.springcloud.msvc.usuarios.services;
 
 import com.angel.springcloud.msvc.usuarios.entities.Usuario;
 import com.angel.springcloud.msvc.usuarios.repositories.UsuarioRepository;
@@ -30,6 +30,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public Optional<Usuario> obtenerPorEmail(String email) {
+        return repository.porEmail(email);
+    }
+
+    @Override
     @Transactional
     public Usuario guardar(Usuario usuario) {
         return repository.save(usuario);
@@ -39,6 +44,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public void eliminar(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public boolean existePorEmail(String email) {
+        return repository.existsByEmail(email);
     }
 
 }
