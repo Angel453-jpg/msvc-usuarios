@@ -1,8 +1,12 @@
 package com.angel.springcloud.msvc.usuarios.controllers;
 
+import com.angel.springcloud.msvc.usuarios.controllers.examples.UsuarioExamples;
 import com.angel.springcloud.msvc.usuarios.entities.Usuario;
 import com.angel.springcloud.msvc.usuarios.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -36,8 +41,28 @@ public class UsuarioController {
 
     @Operation(summary = "Obtener un usuario por su ID", description = "Devuelve un usuario por su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuario obtenido correctamente"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario obtenido correctamente",
+                    content = @Content(
+                            schema = @Schema(implementation = Usuario.class),
+                            examples = @ExampleObject(
+                                    name = "Ejemplo de respuesta 200",
+                                    value = UsuarioExamples.USUARIO_OBTENIDO
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Ejemplo de respuesta 404",
+                                    value = UsuarioExamples.USUARIO_NO_ENCONTRADO
+                            )
+                    )
+            )
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> detalle(@PathVariable Long id) {
