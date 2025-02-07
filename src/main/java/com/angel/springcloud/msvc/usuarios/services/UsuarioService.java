@@ -17,6 +17,8 @@ public interface UsuarioService {
 
     void eliminar(Long id);
 
+    List<Usuario> listarPorIds(Iterable<Long> ids);
+
     boolean existePorEmail(String email);
 
 }
