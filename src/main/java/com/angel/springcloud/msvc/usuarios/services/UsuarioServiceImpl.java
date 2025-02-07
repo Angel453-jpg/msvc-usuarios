@@ -1,5 +1,6 @@
 package com.angel.springcloud.msvc.usuarios.services;
 
+import com.angel.springcloud.msvc.usuarios.clients.CursoClientRest;
 import com.angel.springcloud.msvc.usuarios.entities.Usuario;
 import com.angel.springcloud.msvc.usuarios.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,11 @@ import java.util.Optional;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository repository;
+    private final CursoClientRest cursoClientRest;
 
-    public UsuarioServiceImpl(UsuarioRepository repository) {
+    public UsuarioServiceImpl(UsuarioRepository repository, CursoClientRest cursoClientRest) {
         this.repository = repository;
+        this.cursoClientRest = cursoClientRest;
     }
 
     @Override
@@ -50,6 +53,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public void eliminar(Long id) {
         repository.deleteById(id);
+        cursoClientRest.eliminarCursoUsuarioPorId(id);
     }
 
     @Override
