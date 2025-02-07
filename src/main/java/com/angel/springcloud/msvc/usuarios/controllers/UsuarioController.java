@@ -151,6 +151,11 @@ public class UsuarioController {
     }
 
     @GetMapping("/usuarios-por-curso")
+    @Operation(summary = "Obtener todos los usuarios por curso", description = "Devuelve una lista de usuarios por curso")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuarios obtenidos correctamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public ResponseEntity<?> obtenerUsuariosPorCurso(@RequestParam List<Long> ids) {
         return ResponseEntity.ok(usuarioService.listarPorIds(ids));
     }
