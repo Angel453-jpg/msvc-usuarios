@@ -35,8 +35,8 @@ public class UsuarioController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping
-    public List<Usuario> listar() {
-        return usuarioService.listar();
+    public Map<String, List<Usuario>> listar() {
+        return Collections.singletonMap("users", usuarioService.listar());
     }
 
     @Operation(summary = "Obtener un usuario por su ID", description = "Devuelve un usuario por su ID")
@@ -91,7 +91,7 @@ public class UsuarioController {
         if (!usuario.getEmail().isEmpty() && usuarioService.existePorEmail(usuario.getEmail())) {
             return ResponseEntity.badRequest()
                     .body(Collections
-                            .singletonMap("mensaje", "El email ya está registrado con ese correo electrónico"));
+                            .singletonMap("mensaje", "Ya existe un usuario con ese email !!"));
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.guardar(usuario));
@@ -118,7 +118,7 @@ public class UsuarioController {
                     && usuarioService.obtenerPorEmail(usuario.getEmail()).isPresent()) {
                 return ResponseEntity.badRequest()
                         .body(Collections
-                                .singletonMap("mensaje", "El email ya está registrado con ese correo electrónico"));
+                                .singletonMap("mensaje", "El email ya está registrado con ese correo electrónico !!!"));
             }
 
             usuarioDb.setNombre(usuario.getNombre());
